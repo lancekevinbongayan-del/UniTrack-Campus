@@ -69,7 +69,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0c10]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0a0c10]">
       <Card className="max-w-[440px] w-full bg-[#12141c] border-none shadow-2xl p-8 rounded-[2rem]">
         <CardContent className="p-0 space-y-8">
           <div className="flex flex-col items-center text-center space-y-4">
@@ -77,7 +77,7 @@ function LoginForm() {
               <div className="relative w-16 h-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg">
                 <Image 
                   src={logo.imageUrl} 
-                  alt="UniTrack Logo" 
+                  alt="New Era University Logo" 
                   fill 
                   className="object-contain"
                   data-ai-hint="university logo"
@@ -128,7 +128,7 @@ function LoginForm() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-3">
-              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Neu Institutional Email</Label>
+              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">NEU Institutional Email</Label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8b949e] group-focus-within:text-primary transition-colors" />
                 <Input 
@@ -167,6 +167,12 @@ function LoginForm() {
           </form>
         </CardContent>
       </Card>
+
+      <footer className="mt-8 text-center space-y-1">
+        <p className="text-muted-foreground/40 text-[10px] font-bold uppercase tracking-[0.2em]">
+          © {new Date().getFullYear()} New Era University
+        </p>
+      </footer>
     </div>
   );
 }

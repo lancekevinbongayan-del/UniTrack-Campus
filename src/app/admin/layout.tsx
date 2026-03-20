@@ -59,14 +59,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {logo && (
                 <Image 
                   src={logo.imageUrl} 
-                  alt="UniTrack Logo" 
+                  alt="New Era University Logo" 
                   fill 
                   className="object-contain"
                   data-ai-hint="university logo"
                 />
               )}
             </div>
-            <span className="font-bold text-primary font-headline tracking-tight">UniTrack Admin</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-primary font-headline tracking-tight text-sm">NEU UniTrack</span>
+              <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Admin Control</span>
+            </div>
           </div>
         </SidebarHeader>
         <SidebarContent className="p-2">
@@ -83,7 +86,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-4 border-t">
+        <SidebarFooter className="p-4 border-t space-y-4">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={() => { logout(); router.push('/'); }} className="w-full text-muted-foreground hover:text-destructive">
@@ -92,6 +95,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <div className="px-2 text-[8px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] text-center">
+            © {new Date().getFullYear()} New Era University
+          </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -100,7 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <SidebarTrigger />
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-muted-foreground">Admin: {auth.user.name}</span>
+            <span className="text-sm font-medium text-muted-foreground">Officer: {auth.user.name}</span>
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <Users className="w-4 h-4 text-primary" />
             </div>

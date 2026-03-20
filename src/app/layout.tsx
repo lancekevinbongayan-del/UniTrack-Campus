@@ -2,8 +2,8 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'UniTrack Campus Visitor',
-  description: 'Institutional visitor management and check-in system',
+  title: 'NEU UniTrack | New Era University',
+  description: 'Official institutional visitor management and check-in system for New Era University.',
 };
 
 export default function RootLayout({

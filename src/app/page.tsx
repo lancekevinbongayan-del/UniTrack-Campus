@@ -18,20 +18,20 @@ export default function Home() {
         <div className="absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary/10 rounded-full blur-[100px]" />
       </div>
 
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center flex-1">
         <div className="space-y-8 z-10 text-center lg:text-left">
           <div className="space-y-4">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3 h-3" />
-              <span>Secure Institutional Access</span>
+              <span>Official NEU Institutional Portal</span>
             </div>
             
             <div className="flex flex-col items-center lg:items-start space-y-4">
               {logo && (
-                <div className="relative w-20 h-20 mb-2 bg-white p-2 rounded-2xl shadow-xl">
+                <div className="relative w-24 h-24 mb-2 bg-white p-2 rounded-2xl shadow-xl">
                   <Image 
                     src={logo.imageUrl} 
-                    alt="UniTrack Logo" 
+                    alt="New Era University Logo" 
                     fill 
                     className="object-contain"
                     data-ai-hint="university logo"
@@ -40,12 +40,12 @@ export default function Home() {
               )}
               <h1 className="text-5xl md:text-6xl font-headline font-bold text-foreground tracking-tight leading-tight">
                 UniTrack <span className="text-primary">Campus</span> <br />
-                <span className="text-secondary">Visitor Portal</span>
+                <span className="text-secondary">Visitor Management</span>
               </h1>
             </div>
             
             <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
-              Welcome to the next generation of campus visitor management. Seamless check-ins, real-time analytics, and secure verification.
+              Welcome to the New Era University visitor gateway. Secure, efficient, and integrated institutional check-in services.
             </p>
           </div>
 
@@ -60,8 +60,8 @@ export default function Home() {
                   <CardDescription className="text-muted-foreground/80">Check-in for your visit</CardDescription>
                 </CardHeader>
                 <CardContent className="mt-4">
-                  <Button className="w-full bg-secondary hover:bg-secondary/90 text-white shadow-lg shadow-secondary/20">
-                    Sign In <LogIn className="ml-2 w-4 h-4" />
+                  <Button className="w-full bg-secondary hover:bg-secondary/90 text-white shadow-lg shadow-secondary/20 font-bold">
+                    SIGN IN <LogIn className="ml-2 w-4 h-4" />
                   </Button>
                 </CardContent>
               </Link>
@@ -74,11 +74,11 @@ export default function Home() {
                     <ShieldCheck className="text-primary w-6 h-6" />
                   </div>
                   <CardTitle className="text-2xl font-bold">Admin</CardTitle>
-                  <CardDescription className="text-muted-foreground/80">Manage institutional data</CardDescription>
+                  <CardDescription className="text-muted-foreground/80">Institutional Oversight</CardDescription>
                 </CardHeader>
                 <CardContent className="mt-4">
-                  <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10">
-                    Admin Portal
+                  <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10 font-bold">
+                    ADMIN PORTAL
                   </Button>
                 </CardContent>
               </Link>
@@ -86,7 +86,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Splash Art replacement */}
+        {/* Splash Art */}
         <div className="relative hidden lg:flex items-center justify-center min-h-[500px] splash-art-container">
           <svg
             viewBox="0 0 500 500"
@@ -130,8 +130,15 @@ export default function Home() {
         </div>
       </div>
 
-      <footer className="mt-16 text-muted-foreground/60 text-sm font-medium">
-        © {new Date().getFullYear()} UniTrack Campus Visitor System. All institutional rights reserved.
+      <footer className="mt-16 pb-8 text-center space-y-2 z-10">
+        <p className="text-muted-foreground/60 text-sm font-medium">
+          © {new Date().getFullYear()} New Era University. All institutional rights reserved.
+        </p>
+        <div className="flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/30">
+          <span>UniTrack System</span>
+          <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+          <span>Property of NEU</span>
+        </div>
       </footer>
     </div>
   );
