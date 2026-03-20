@@ -4,12 +4,12 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Building2, HelpCircle, Smartphone, Monitor, Activity, Loader2, Filter, History } from 'lucide-react';
+import { Users, Building2, HelpCircle, Smartphone, Monitor, Activity, Loader2, Filter, History, Mail } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 
 const chartConfig = {
   value: {
@@ -50,10 +50,9 @@ export default function AdminDashboard() {
     const now = new Date();
 
     if (period === 'Day') {
-      result = result.filter(v => {
-        const d = new Date(v.timestamp);
-        return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      });
+      // Use last 24 hours for "Today" to avoid timezone/calendar day issues
+      const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      result = result.filter(v => new Date(v.timestamp) >= twentyFourHoursAgo);
     } else if (period === 'Week') {
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       result = result.filter(v => new Date(v.timestamp) >= oneWeekAgo);
@@ -120,7 +119,7 @@ export default function AdminDashboard() {
               <SelectValue placeholder="Period" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Day">Today</SelectItem>
+              <SelectItem value="Day">Today (24h)</SelectItem>
               <SelectItem value="Week">This Week</SelectItem>
               <SelectItem value="Month">This Month</SelectItem>
               <SelectItem value="All">All Time</SelectItem>
@@ -189,10 +188,10 @@ export default function AdminDashboard() {
                 <div key={session.id} className="flex items-center justify-between p-3 border border-primary/5 rounded-xl bg-card/40 hover:bg-primary/5 transition-all">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary text-sm">
-                      {session.userName?.charAt(0)}
+                      {(session.userName || session.userEmail || "?").charAt(0)}
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-foreground">{session.userName}</p>
+                      <p className="font-bold text-sm text-foreground">{session.userName || "Unknown"}</p>
                       <p className="text-[10px] text-muted-foreground flex items-center">
                         {session.deviceId === 'Mobile Device' ? <Smartphone className="w-3 h-3 mr-1" /> : <Monitor className="w-3 h-3 mr-1" />}
                         {session.deviceId}
@@ -222,7 +221,7 @@ export default function AdminDashboard() {
               </div>
             ) : filteredVisits.length === 0 ? (
               <div className="text-center py-20 text-muted-foreground">
-                No recent activity recorded.
+                No recent activity recorded for this period.
               </div>
             ) : (
               <div className="divide-y divide-primary/5">
@@ -230,15 +229,17 @@ export default function AdminDashboard() {
                   <div key={visit.id} className="flex items-center justify-between p-4 hover:bg-primary/5 transition-colors">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center font-bold text-secondary text-sm">
-                        {visit.userName?.charAt(0)}
+                        {(visit.userName || visit.userEmail || "?").charAt(0)}
                       </div>
                       <div>
-                        <p className="font-bold text-sm">{visit.userName}</p>
-                        <p className="text-xs text-muted-foreground">{visit.department}</p>
+                        <p className="font-bold text-sm">{visit.userName || "Verified Visitor"}</p>
+                        <p className="text-[10px] text-muted-foreground flex items-center">
+                          <Mail className="w-3 h-3 mr-1" /> {visit.userEmail}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium">{visit.reasonForVisit}</p>
+                      <p className="text-xs font-medium">{visit.department}</p>
                       <p className="text-[10px] text-muted-foreground">{new Date(visit.timestamp).toLocaleTimeString()}</p>
                     </div>
                   </div>
