@@ -11,15 +11,26 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const DEPARTMENTS = [
-  'College of Engineering',
-  'College of Computer Science',
-  'College of Business',
+  'College of Agriculture',
   'College of Arts and Sciences',
+  'College of Business Administration',
+  'College of Communication',
+  'College of Computer Studies',
+  'College of Criminology',
   'College of Education',
-  'Graduate School',
-  'Library',
+  'College of Engineering and Architecture',
+  'College of Law',
+  'College of Medical Technology',
+  'College of Music',
+  'College of Nursing',
+  'College of Physical Therapy',
+  'School of Graduate Studies',
+  'Integrated School',
   'Admissions Office',
   'Registrar',
+  'University Library',
+  'Guidance and Counseling',
+  'Student Affairs',
   'Other'
 ];
 
@@ -250,6 +261,11 @@ export default function VisitorCheckIn() {
               </Button>
             </form>
           </CardContent>
+          <CardFooter>
+            <p className="text-xs text-center w-full text-muted-foreground">
+              Information collected will be used strictly for institutional security and analytics purposes.
+            </p>
+          </CardFooter>
         </Card>
 
         <div className="flex justify-center">
