@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -99,26 +98,26 @@ export default function VisitorCheckIn() {
 
   if (hasCheckedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-        <Card className="max-w-md w-full text-center p-4 border-primary/20 bg-card/40 backdrop-blur-sm">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0c10]">
+        <Card className="max-w-md w-full text-center p-4 border-none bg-[#12141c] shadow-2xl rounded-[2rem]">
           <CardHeader>
             <div className="mx-auto w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4 border border-green-500/20">
               <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
-            <CardTitle className="text-2xl text-primary">Check-in Completed</CardTitle>
-            <CardDescription className="text-lg">
+            <CardTitle className="text-2xl text-white font-bold">Welcome to NEU Library!</CardTitle>
+            <CardDescription className="text-lg text-[#8b949e]">
               Thank you, {auth.user.name}. Your entry has been logged.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-muted/30 border border-primary/10 p-4 rounded-xl text-sm text-left">
-              <p className="flex justify-between py-1 border-b border-primary/5"><strong>Classification:</strong> {classification}</p>
-              <p className="flex justify-between py-1 border-b border-primary/5"><strong>Department:</strong> {department}</p>
-              <p className="flex justify-between py-1"><strong>Time:</strong> {new Date().toLocaleTimeString()}</p>
+            <div className="bg-[#1a1d27] border border-primary/10 p-4 rounded-xl text-sm text-left text-white">
+              <p className="flex justify-between py-1 border-b border-primary/5"><strong>Classification:</strong> <span>{classification}</span></p>
+              <p className="flex justify-between py-1 border-b border-primary/5"><strong>Department:</strong> <span>{department}</span></p>
+              <p className="flex justify-between py-1"><strong>Time:</strong> <span>{new Date().toLocaleTimeString()}</span></p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-2">
-            <Button onClick={handleLogout} variant="outline" className="w-full border-primary/20 hover:bg-primary/5">
+            <Button onClick={handleLogout} variant="outline" className="w-full border-primary/20 hover:bg-primary/5 text-white">
               Logout <LogOut className="ml-2 w-4 h-4" />
             </Button>
           </CardFooter>
