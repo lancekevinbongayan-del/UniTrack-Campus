@@ -1,5 +1,11 @@
 # UniTrack Campus Visitor Management System
 
+## 🌐 Live Demo
+Access the official institutional visitor portal and administrative command center:
+**[Launch UniTrack System](https://unitrack-neu.web.app)** 
+
+---
+
 Official institutional visitor management and real-time check-in system for **New Era University**. This application provides a secure, efficient, and AI-enhanced gateway for managing campus traffic and institutional oversight.
 
 ## 🚀 Key Features
@@ -11,7 +17,7 @@ Official institutional visitor management and real-time check-in system for **Ne
 
 ### 📍 Visitor Check-in System
 - **Facility Selection**: Quick check-in for key campus units including the University Library and Dean's Offices.
-- **Smart Data Entry**: Captures visitor classification (Student, Faculty, Staff), target department, and primary purpose of visit.
+- **Smart Data Entry**: Captures visitor classification (Student, Employee), target department, and primary purpose of visit.
 - **Real-time Logging**: Instant synchronization of visit records with the central administrative database.
 
 ### 📊 Administrative Command Center
@@ -45,4 +51,4 @@ Official institutional visitor management and real-time check-in system for **Ne
 - `src/lib`: Shared utilities, types, and state management logic.
 
 ---
-© 2024 New Era University. All institutional rights reserved.
+© 2026 New Era University. All institutional rights reserved.
