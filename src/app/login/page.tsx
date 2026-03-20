@@ -42,8 +42,8 @@ function LoginForm() {
       setError('Invalid administrative credentials. Please check your email and password.');
     } else {
       // Restricted to institutional domain
-      if (!email.endsWith('@neu.edu.ph') && !email.endsWith('@inst.edu')) {
-        setError('Institutional email domain required. Please use your @neu.edu.ph or @inst.edu account.');
+      if (!email.endsWith('@neu.edu.ph')) {
+        setError('Institutional email domain required. Please use your @neu.edu.ph account.');
       } else {
         const existingUser = users.find(u => u.email === email);
         if (existingUser?.isBlocked) {
@@ -67,7 +67,7 @@ function LoginForm() {
 
   const handleGoogleMock = () => {
     // In a real app, this triggers Google OAuth
-    setEmail('visitor@inst.edu');
+    setEmail('visitor@neu.edu.ph');
   };
 
   return (
@@ -103,7 +103,7 @@ function LoginForm() {
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="m@example.com" 
+                placeholder="m@neu.edu.ph" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required 
@@ -159,7 +159,7 @@ function LoginForm() {
           <p className="text-xs text-center text-muted-foreground">
             {isAdminRequest 
               ? 'Restricted to authorized personnel only.' 
-              : 'Institutional login restricted to @neu.edu.ph and @inst.edu domains.'}
+              : 'Institutional login restricted to @neu.edu.ph domain.'}
           </p>
         </CardFooter>
       </Card>
