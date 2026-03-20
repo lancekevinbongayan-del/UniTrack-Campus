@@ -1,29 +1,42 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
-import { useUniStore } from '@/lib/store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, CalendarDays, Filter } from 'lucide-react';
+import { Search, CalendarDays, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 export default function VisitorLogs() {
-  const { visits } = useUniStore();
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
+  const db = useFirestore();
+
+  const visitsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'visits'), orderBy('timestamp', 'desc'));
+  }, [db]);
+
+  const { data: visits, isLoading } = useCollection(visitsQuery);
 
   const filteredVisits = useMemo(() => {
+    if (!visits) return [];
     return visits.filter(v => {
       const matchesSearch = v.userName.toLowerCase().includes(search.toLowerCase()) || 
                            v.userEmail.toLowerCase().includes(search.toLowerCase());
-      const matchesDept = deptFilter === 'All' || v.department === deptFilter;
+      const matchesDept = deptFilter === 'All' || v.department.includes(deptFilter);
       return matchesSearch && matchesDept;
     });
   }, [visits, search, deptFilter]);
 
-  const departments = Array.from(new Set(visits.map(v => v.department)));
+  const departments = useMemo(() => {
+    if (!visits) return [];
+    return Array.from(new Set(visits.map(v => v.department.split(' - ').pop() || v.department)));
+  }, [visits]);
 
   return (
     <div className="space-y-6">
@@ -75,37 +88,46 @@ export default function VisitorLogs() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredVisits.map((visit) => (
-                  <TableRow key={visit.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-sm">{visit.userName}</p>
-                        <p className="text-xs text-muted-foreground">{visit.userEmail}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{visit.classification}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm">{visit.department}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm italic text-muted-foreground">{visit.reasonForVisit}</span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs">
-                        <p className="font-medium">{new Date(visit.timestamp).toLocaleDateString()}</p>
-                        <p className="text-muted-foreground">{new Date(visit.timestamp).toLocaleTimeString()}</p>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-12">
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <Loader2 className="w-5 h-5 animate-spin" /> Retrieving live logs...
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
-                {filteredVisits.length === 0 && (
+                ) : filteredVisits.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       No visit records found.
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredVisits.map((visit) => (
+                    <TableRow key={visit.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-sm">{visit.userName}</p>
+                          <p className="text-xs text-muted-foreground">{visit.userEmail}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{visit.classification}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{visit.department}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm italic text-muted-foreground">{visit.reasonForVisit}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          <p className="font-medium">{new Date(visit.timestamp).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">{new Date(visit.timestamp).toLocaleTimeString()}</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>

@@ -11,7 +11,7 @@ import { CheckCircle2, Loader2, LogOut, ArrowRight, Library, Building2, Graduati
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFirestore } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 
 const DEPARTMENTS = [
   'College of Agriculture',
@@ -59,7 +59,7 @@ const CLASSIFICATIONS = [
 
 export default function VisitorCheckIn() {
   const router = useRouter();
-  const { auth, logout, addVisit, isLoaded, currentSessionId } = useUniStore();
+  const { auth, logout, isLoaded, currentSessionId } = useUniStore();
   const { toast } = useToast();
   const db = useFirestore();
   
@@ -88,22 +88,29 @@ export default function VisitorCheckIn() {
     }
 
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1000));
-
+    
     const facilityName = FACILITIES.find(f => f.id === selectedFacility)?.name || 'Unknown';
 
-    addVisit({
-      userId: auth.user!.id,
-      userEmail: auth.user!.email,
-      userName: auth.user!.name,
-      department: `${facilityName} - ${department}`,
-      reasonForVisit: reason,
-      classification
-    });
+    try {
+      // Record visit in Firestore
+      await addDoc(collection(db, 'visits'), {
+        userId: auth.user!.id,
+        userEmail: auth.user!.email,
+        userName: auth.user!.name,
+        department: `${facilityName} - ${department}`,
+        reasonForVisit: reason,
+        classification,
+        timestamp: new Date().toISOString(),
+      });
 
-    setIsSubmitting(false);
-    setHasCheckedIn(true);
-    toast({ title: "Check-in Successful", description: "Your visit has been recorded. Welcome to the campus!" });
+      setHasCheckedIn(true);
+      toast({ title: "Check-in Successful", description: "Your visit has been recorded. Welcome to the campus!" });
+    } catch (err) {
+      console.error('Failed to record visit:', err);
+      toast({ variant: 'destructive', title: "Error", description: "System failure recording visit." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLogout = async () => {

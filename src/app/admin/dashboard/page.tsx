@@ -1,15 +1,15 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
-import { useUniStore } from '@/lib/store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Building2, HelpCircle, Smartphone, Monitor, Activity, Loader2, Filter } from 'lucide-react';
+import { Users, Building2, HelpCircle, Smartphone, Monitor, Activity, Loader2, Filter, History } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 
 const chartConfig = {
   value: {
@@ -22,7 +22,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function AdminDashboard() {
-  const { visits } = useUniStore();
   const [period, setPeriod] = useState('Day');
   const [deptFilter, setDeptFilter] = useState('All');
   const [classFilter, setClassFilter] = useState('All');
@@ -37,8 +36,17 @@ export default function AdminDashboard() {
   
   const { data: activeSessions, isLoading: sessionsLoading } = useCollection(activeSessionsQuery);
 
+  // Real-time Visits from Firestore
+  const visitsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'visits'), orderBy('timestamp', 'desc'));
+  }, [db]);
+
+  const { data: rawVisits, isLoading: visitsLoading } = useCollection(visitsQuery);
+
   const filteredVisits = useMemo(() => {
-    let result = visits;
+    if (!rawVisits) return [];
+    let result = rawVisits;
     const now = new Date();
 
     if (period === 'Day') {
@@ -55,7 +63,7 @@ export default function AdminDashboard() {
     }
 
     if (deptFilter !== 'All') {
-      result = result.filter(v => v.department === deptFilter);
+      result = result.filter(v => v.department.includes(deptFilter));
     }
 
     if (classFilter !== 'All') {
@@ -67,19 +75,31 @@ export default function AdminDashboard() {
     }
 
     return result;
-  }, [visits, period, deptFilter, classFilter, reasonFilter]);
+  }, [rawVisits, period, deptFilter, classFilter, reasonFilter]);
 
   const deptStats = useMemo(() => {
     const counts: Record<string, number> = {};
     filteredVisits.forEach(v => {
-      counts[v.department] = (counts[v.department] || 0) + 1;
+      const dept = v.department.split(' - ').pop() || v.department;
+      counts[dept] = (counts[dept] || 0) + 1;
     });
     return Object.entries(counts).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
   }, [filteredVisits]);
 
-  const departments = Array.from(new Set(visits.map(v => v.department)));
-  const classifications = Array.from(new Set(visits.map(v => v.classification)));
-  const reasons = Array.from(new Set(visits.map(v => v.reasonForVisit)));
+  const departments = useMemo(() => {
+    if (!rawVisits) return [];
+    return Array.from(new Set(rawVisits.map(v => v.department.split(' - ').pop() || v.department)));
+  }, [rawVisits]);
+
+  const classifications = useMemo(() => {
+    if (!rawVisits) return [];
+    return Array.from(new Set(rawVisits.map(v => v.classification)));
+  }, [rawVisits]);
+
+  const reasons = useMemo(() => {
+    if (!rawVisits) return [];
+    return Array.from(new Set(rawVisits.map(v => v.reasonForVisit)));
+  }, [rawVisits]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -155,7 +175,7 @@ export default function AdminDashboard() {
             </CardTitle>
             <CardDescription>Live monitoring of institutional access points.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 max-h-[500px] overflow-y-auto">
+          <CardContent className="space-y-4 max-h-[400px] overflow-y-auto">
             {sessionsLoading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -186,32 +206,50 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Department Activity Chart */}
-        <Card className="lg:col-span-2 bg-card/60 border-primary/10 shadow-xl">
+        {/* Real-time Recent Visits Log */}
+        <Card className="lg:col-span-2 bg-card/60 border-primary/10 shadow-xl overflow-hidden">
           <CardHeader>
             <CardTitle className="flex items-center text-xl">
-              <Building2 className="mr-3 w-6 h-6 text-primary" />
-              Institutional Traffic
+              <History className="mr-3 w-6 h-6 text-primary" />
+              Recent Visits
             </CardTitle>
-            <CardDescription>Visual breakdown of activity across campus units based on current filters.</CardDescription>
+            <CardDescription>Live log of visitor entries across all campus units.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[400px] pt-4">
-            <ChartContainer config={chartConfig}>
-              <BarChart data={deptStats.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--primary) / 0.1)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 10}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
-                <ChartTooltip 
-                  cursor={{ fill: 'hsl(var(--primary) / 0.05)' }} 
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Bar dataKey="value" fill="var(--color-value)" radius={[6, 6, 0, 0]} barSize={40} />
-              </BarChart>
-            </ChartContainer>
+          <CardContent className="max-h-[400px] overflow-y-auto p-0">
+            {visitsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </div>
+            ) : filteredVisits.length === 0 ? (
+              <div className="text-center py-20 text-muted-foreground">
+                No recent activity recorded.
+              </div>
+            ) : (
+              <div className="divide-y divide-primary/5">
+                {filteredVisits.slice(0, 10).map((visit: any) => (
+                  <div key={visit.id} className="flex items-center justify-between p-4 hover:bg-primary/5 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center font-bold text-secondary text-sm">
+                        {visit.userName?.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{visit.userName}</p>
+                        <p className="text-xs text-muted-foreground">{visit.department}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium">{visit.reasonForVisit}</p>
+                      <p className="text-[10px] text-muted-foreground">{new Date(visit.timestamp).toLocaleTimeString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
+      {/* Traffic Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: 'Calculated Visits', value: filteredVisits.length, icon: Users, color: 'primary', sub: 'Based on current filters' },
@@ -237,6 +275,31 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Department Activity Chart */}
+      <Card className="bg-card/60 border-primary/10 shadow-xl">
+        <CardHeader>
+          <CardTitle className="flex items-center text-xl">
+            <Building2 className="mr-3 w-6 h-6 text-primary" />
+            Institutional Traffic Breakdown
+          </CardTitle>
+          <CardDescription>Visual breakdown of activity across campus units based on current filters.</CardDescription>
+        </CardHeader>
+        <CardContent className="h-[400px] pt-4">
+          <ChartContainer config={chartConfig}>
+            <BarChart data={deptStats.slice(0, 5)}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--primary) / 0.1)" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 10}} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+              <ChartTooltip 
+                cursor={{ fill: 'hsl(var(--primary) / 0.05)' }} 
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <Bar dataKey="value" fill="var(--color-value)" radius={[6, 6, 0, 0]} barSize={40} />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
