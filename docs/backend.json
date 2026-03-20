@@ -1,0 +1,212 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user (visitor or admin) of the UniTrack Campus Visitor system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's institutional email address, used for login and identification.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the system (e.g., 'admin', 'visitor')."
+        },
+        "isBlocked": {
+          "type": "boolean",
+          "description": "A flag indicating if the user's account is currently blocked from accessing the system."
+        },
+        "visitorClassification": {
+          "type": "string",
+          "description": "Categorization of the visitor (e.g., 'Student', 'Faculty', 'Guest', 'Alumni')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "role",
+        "isBlocked",
+        "visitorClassification",
+        "createdAt"
+      ]
+    },
+    "Visit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Visit",
+      "type": "object",
+      "description": "Records a single visit by a user to the campus, capturing details about their presence.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Visit entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who made this visit. (Relationship: User 1:N Visit)"
+        },
+        "checkInTime": {
+          "type": "string",
+          "description": "Timestamp when the user checked into the campus.",
+          "format": "date-time"
+        },
+        "checkOutTime": {
+          "type": "string",
+          "description": "Timestamp when the user checked out of the campus. Null if the visit is still active.",
+          "format": "date-time"
+        },
+        "collegeDepartment": {
+          "type": "string",
+          "description": "The specific college department the user visited during this particular visit."
+        },
+        "reasonForVisit": {
+          "type": "string",
+          "description": "The reason specified by the visitor for this specific visit."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "checkInTime",
+        "collegeDepartment",
+        "reasonForVisit"
+      ]
+    },
+    "UserSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserSession",
+      "type": "object",
+      "description": "Tracks active user sessions for real-time monitoring on the admin dashboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserSession entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who initiated this session. (Relationship: User 1:N UserSession)"
+        },
+        "loginTime": {
+          "type": "string",
+          "description": "Timestamp when the user logged in and this session began.",
+          "format": "date-time"
+        },
+        "logoutTime": {
+          "type": "string",
+          "description": "Timestamp when the user logged out and this session ended. Null if the session is still active.",
+          "format": "date-time"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "An identifier for the device from which the user logged in (e.g., unique device ID, browser session ID)."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "A flag indicating whether the user session is currently active."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "loginTime",
+        "isActive"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. Access is typically restricted to the owner (matching `userId` with `request.auth.uid`). Admins may have additional permissions for user management.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, derived from `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/user_sessions/{sessionId}",
+        "definition": {
+          "entityName": "UserSession",
+          "schema": {
+            "$ref": "#/backend/entities/UserSession"
+          },
+          "description": "Contains active and inactive user sessions. Documents include denormalized 'userId' for authorization independence. This collection is readable by administrators for the real-time dashboard (using queries on 'isActive'), and writable by the session's owner.",
+          "params": [
+            {
+              "name": "sessionId",
+              "description": "The unique identifier for a specific user session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/visits/{visitId}",
+        "definition": {
+          "entityName": "Visit",
+          "schema": {
+            "$ref": "#/backend/entities/Visit"
+          },
+          "description": "Records individual campus visits. Documents include denormalized 'userId' for authorization independence. This collection is readable by administrators for statistics and activity logs, and writable by the visit's owner.",
+          "params": [
+            {
+              "name": "visitId",
+              "description": "The unique identifier for a specific campus visit."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{adminId}",
+        "definition": {
+          "entityName": "admin",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A dedicated collection to store administrative roles. The existence of a document at this path for a given `adminId` signifies that the user is an administrator, enabling database-backed access control (DBAC).",
+          "params": [
+            {
+              "name": "adminId",
+              "description": "The unique identifier of an administrator, derived from `request.auth.uid`."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to fulfill the real-time 'Active Sessions' dashboard requirement for administrators while adhering to strict security and scalability principles. We utilize top-level collections for 'UserSession' and 'Visit' entities (`/user_sessions/{sessionId}` and `/visits/{visitId}`) to enable efficient querying and real-time listening for administrative dashboards. Each document in these collections includes a denormalized `userId` field to achieve Authorization Independence. This allows security rules to evaluate access based solely on the document's own data (`resource.data.userId == request.auth.uid`) without requiring expensive or non-atomic `get()` operations to parent documents or related user profiles. This strategy is critical for supporting atomic operations like session creation/updates and ensures robust security rules that are easy to debug.\n\nTo support QAPs (Query As Permission) for the admin dashboard, the `user_sessions` collection is structured to be readable by any administrator and filterable by the `isActive` status. Similarly, the `visits` collection is globally readable by administrators and filterable by various criteria (department, reason, classification). This allows administrators to perform `list` operations directly on these collections, applying `where` clauses (e.g., `where('isActive', '==', true)` or specific filters for `visits`) to retrieve relevant real-time data efficiently. The security rules will grant read access to these collections only to authenticated users whose `uid` exists in the `/roles_admin/{adminId}` collection, ensuring that only authorized personnel can access the dashboard data. Individual users will have write access only to documents where `resource.data.userId` matches their `request.auth.uid`.\n\nStructural Segregation is applied by keeping user profiles in `/users/{userId}`, administrative roles in `/roles_admin/{adminId}`, and session/visit data in separate, top-level collections (`/user_sessions/{sessionId}` and `/visits/{visitId}`). This ensures that each collection maintains a homogeneous security posture: `/users` for private user data, `/roles_admin` for global role checks, and `/user_sessions` and `/visits` for user-owned data that is also admin-viewable, making rules clear and predictable. The `isActive` flag in `UserSession` and explicit timestamps (`checkOutTime`, `logoutTime`) provide clear state modeling, enhancing data clarity and predictability."
+  }
+}
