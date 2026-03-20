@@ -5,9 +5,23 @@ import { useUniStore } from '@/lib/store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, Clock, Building2, HelpCircle, ArrowUpRight, TrendingUp } from 'lucide-react';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+
+const chartConfig = {
+  value: {
+    label: "Visits",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
+
+const secondaryChartConfig = {
+  value: {
+    label: "Visits",
+    color: "hsl(var(--secondary))",
+  },
+} satisfies ChartConfig;
 
 export default function AdminDashboard() {
   const { visits } = useUniStore();
@@ -195,7 +209,7 @@ export default function AdminDashboard() {
             <CardDescription>Breakdown of visitor traffic across campus units.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={chartConfig}>
               <BarChart data={deptStats.slice(0, 5)}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
@@ -204,9 +218,9 @@ export default function AdminDashboard() {
                   cursor={{ fill: 'transparent' }} 
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -220,15 +234,18 @@ export default function AdminDashboard() {
             <CardDescription>Most common purposes for campus entry.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={secondaryChartConfig}>
               <BarChart data={reasonStats.slice(0, 5)} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="name" width={100} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{ fill: 'transparent' }} />
-                <Bar dataKey="value" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]} />
+                <Tooltip 
+                  cursor={{ fill: 'transparent' }} 
+                  content={<ChartTooltipContent indicator="line" />}
+                />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[0, 4, 4, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
