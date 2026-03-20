@@ -2,6 +2,7 @@
 
 import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { useUniStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,12 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { GraduationCap, Building2, Mail, Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialAdmin = searchParams.get('admin') === 'true';
   const { users, login } = useUniStore();
+  const logo = PlaceHolderImages.find(img => img.id === 'logo-placeholder');
   
   const [role, setRole] = useState<'VISITOR' | 'ADMIN'>(initialAdmin ? 'ADMIN' : 'VISITOR');
   const [email, setEmail] = useState('');
@@ -69,9 +72,22 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0c10]">
       <Card className="max-w-[440px] w-full bg-[#12141c] border-none shadow-2xl p-8 rounded-[2rem]">
         <CardContent className="p-0 space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-white tracking-tight">Identity Access</h1>
-            <p className="text-muted-foreground text-sm font-medium">Authentication via @neu.edu.ph system.</p>
+          <div className="flex flex-col items-center text-center space-y-4">
+            {logo && (
+              <div className="relative w-16 h-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg">
+                <Image 
+                  src={logo.imageUrl} 
+                  alt="UniTrack Logo" 
+                  fill 
+                  className="object-contain"
+                  data-ai-hint="university logo"
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-white tracking-tight">Identity Access</h1>
+              <p className="text-muted-foreground text-sm font-medium">Authentication via @neu.edu.ph system.</p>
+            </div>
           </div>
 
           {error && (

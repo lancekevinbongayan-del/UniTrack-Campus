@@ -1,11 +1,15 @@
 "use client"
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn, ShieldCheck, UserCheck, Sparkles } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
+  const logo = PlaceHolderImages.find(img => img.id === 'logo-placeholder');
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background overflow-hidden relative">
       {/* Background Decorative Elements */}
@@ -21,10 +25,25 @@ export default function Home() {
               <Sparkles className="w-3 h-3" />
               <span>Secure Institutional Access</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-headline font-bold text-foreground tracking-tight leading-tight">
-              UniTrack <span className="text-primary">Campus</span> <br />
-              <span className="text-secondary">Visitor Portal</span>
-            </h1>
+            
+            <div className="flex flex-col items-center lg:items-start space-y-4">
+              {logo && (
+                <div className="relative w-20 h-20 mb-2 bg-white p-2 rounded-2xl shadow-xl">
+                  <Image 
+                    src={logo.imageUrl} 
+                    alt="UniTrack Logo" 
+                    fill 
+                    className="object-contain"
+                    data-ai-hint="university logo"
+                  />
+                </div>
+              )}
+              <h1 className="text-5xl md:text-6xl font-headline font-bold text-foreground tracking-tight leading-tight">
+                UniTrack <span className="text-primary">Campus</span> <br />
+                <span className="text-secondary">Visitor Portal</span>
+              </h1>
+            </div>
+            
             <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
               Welcome to the next generation of campus visitor management. Seamless check-ins, real-time analytics, and secure verification.
             </p>
@@ -67,7 +86,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Splash Art Replacement */}
+        {/* Splash Art replacement */}
         <div className="relative hidden lg:flex items-center justify-center min-h-[500px] splash-art-container">
           <svg
             viewBox="0 0 500 500"

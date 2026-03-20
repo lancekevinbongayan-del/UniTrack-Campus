@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUniStore } from '@/lib/store';
+import Image from 'next/image';
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -25,10 +26,12 @@ import {
   CalendarDays
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { auth, logout, isLoaded } = useUniStore();
+  const logo = PlaceHolderImages.find(img => img.id === 'logo-placeholder');
 
   useEffect(() => {
     if (isLoaded && (!auth.isAuthenticated || auth.user?.role !== 'ADMIN')) {
@@ -51,11 +54,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <SidebarProvider>
       <Sidebar variant="sidebar" className="border-r border-primary/10">
         <SidebarHeader className="p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">UT</span>
+          <div className="flex items-center space-x-3">
+            <div className="relative w-10 h-10 overflow-hidden rounded-lg bg-white p-1">
+              {logo && (
+                <Image 
+                  src={logo.imageUrl} 
+                  alt="UniTrack Logo" 
+                  fill 
+                  className="object-contain"
+                  data-ai-hint="university logo"
+                />
+              )}
             </div>
-            <span className="font-bold text-primary font-headline">UniTrack Admin</span>
+            <span className="font-bold text-primary font-headline tracking-tight">UniTrack Admin</span>
           </div>
         </SidebarHeader>
         <SidebarContent className="p-2">
@@ -85,7 +96,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-          <SidebarTrigger />
+          <div className="flex items-center gap-2">
+            <SidebarTrigger />
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-muted-foreground">Admin: {auth.user.name}</span>
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
