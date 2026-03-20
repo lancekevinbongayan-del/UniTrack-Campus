@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -51,11 +52,13 @@ export function useUniStore() {
   const [visits, setVisits] = useState<Visit[]>([]);
   const [auth, setAuth] = useState<AuthState>({ user: null, isAuthenticated: false });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     const storedUsers = localStorage.getItem('uni_users');
     const storedVisits = localStorage.getItem('uni_visits');
     const storedAuth = localStorage.getItem('uni_auth');
+    const storedSession = localStorage.getItem('uni_session_id');
 
     if (storedUsers) setUsers(JSON.parse(storedUsers));
     else {
@@ -70,6 +73,7 @@ export function useUniStore() {
     }
 
     if (storedAuth) setAuth(JSON.parse(storedAuth));
+    if (storedSession) setCurrentSessionId(storedSession);
     
     setIsLoaded(true);
   }, []);
@@ -84,16 +88,22 @@ export function useUniStore() {
     localStorage.setItem('uni_visits', JSON.stringify(newVisits));
   };
 
-  const login = (user: User) => {
+  const login = (user: User, sessionId?: string) => {
     const newState = { user, isAuthenticated: true };
     setAuth(newState);
     localStorage.setItem('uni_auth', JSON.stringify(newState));
+    if (sessionId) {
+      setCurrentSessionId(sessionId);
+      localStorage.setItem('uni_session_id', sessionId);
+    }
   };
 
   const logout = () => {
     const newState = { user: null, isAuthenticated: false };
     setAuth(newState);
+    setCurrentSessionId(null);
     localStorage.removeItem('uni_auth');
+    localStorage.removeItem('uni_session_id');
   };
 
   const addVisit = (visit: Omit<Visit, 'id' | 'timestamp'>) => {
@@ -116,6 +126,7 @@ export function useUniStore() {
     visits,
     auth,
     isLoaded,
+    currentSessionId,
     login,
     logout,
     addVisit,

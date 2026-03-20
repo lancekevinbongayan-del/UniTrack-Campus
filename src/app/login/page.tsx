@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, Suspense, useEffect } from 'react';
@@ -11,12 +12,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { GraduationCap, Building2, Mail, Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useAuth, useFirestore } from '@/firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialAdmin = searchParams.get('admin') === 'true';
   const { users, login } = useUniStore();
+  const auth = useAuth();
+  const db = useFirestore();
   const logo = PlaceHolderImages.find(img => img.id === 'logo-placeholder');
   
   const [role, setRole] = useState<'VISITOR' | 'ADMIN'>(initialAdmin ? 'ADMIN' : 'VISITOR');
@@ -30,16 +36,35 @@ function LoginForm() {
     setIsLoading(true);
     setError(null);
 
-    // Simulate network delay
+    // Simulated network delay
     await new Promise(r => setTimeout(r, 800));
 
     if (role === 'ADMIN') {
       if (email === 'jcesperanza@neu.edu.ph' && password === 'admin123') {
         const adminUser = users.find(u => u.email === email);
         if (adminUser) {
-          login(adminUser);
-          router.push('/admin/dashboard');
-          return;
+          try {
+            const userCredential = await signInAnonymously(auth);
+            const sessionId = Math.random().toString(36).substr(2, 9);
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            // Create real-time session in Firestore
+            await setDoc(doc(db, 'user_sessions', sessionId), {
+              id: sessionId,
+              userId: userCredential.user.uid,
+              userName: adminUser.name,
+              userEmail: adminUser.email,
+              loginTime: new Date().toISOString(),
+              isActive: true,
+              deviceId: isMobile ? 'Mobile Device' : 'Desktop/Web',
+            });
+
+            login(adminUser, sessionId);
+            router.push('/admin/dashboard');
+            return;
+          } catch (err: any) {
+            setError('System authentication failure: ' + err.message);
+          }
         }
       }
       setError('Invalid administrative credentials.');
@@ -52,16 +77,36 @@ function LoginForm() {
         if (existingUser?.isBlocked) {
           setError('This account has been blocked.');
         } else {
-          const user = existingUser || {
-            id: Math.random().toString(36).substr(2, 9),
-            name: email.split('@')[0],
-            email,
-            role: 'VISITOR',
-            classification: 'Student',
-            isBlocked: false,
-          };
-          login(user as any);
-          router.push('/visitor/check-in');
+          try {
+            const userCredential = await signInAnonymously(auth);
+            const sessionId = Math.random().toString(36).substr(2, 9);
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            const newUser = existingUser || {
+              id: userCredential.user.uid,
+              name: email.split('@')[0],
+              email,
+              role: 'VISITOR',
+              classification: 'Student',
+              isBlocked: false,
+            };
+
+            // Create real-time session in Firestore
+            await setDoc(doc(db, 'user_sessions', sessionId), {
+              id: sessionId,
+              userId: userCredential.user.uid,
+              userName: newUser.name,
+              userEmail: newUser.email,
+              loginTime: new Date().toISOString(),
+              isActive: true,
+              deviceId: isMobile ? 'Mobile Device' : 'Desktop/Web',
+            });
+
+            login(newUser as any, sessionId);
+            router.push('/visitor/check-in');
+          } catch (err: any) {
+            setError('System authentication failure: ' + err.message);
+          }
         }
       }
     }

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect } from 'react';
@@ -27,10 +28,13 @@ import {
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useFirestore } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { auth, logout, isLoaded } = useUniStore();
+  const { auth, logout, isLoaded, currentSessionId } = useUniStore();
+  const db = useFirestore();
   const logo = PlaceHolderImages.find(img => img.id === 'logo-placeholder');
 
   useEffect(() => {
@@ -38,6 +42,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push('/login?admin=true');
     }
   }, [isLoaded, auth, router]);
+
+  const handleLogout = async () => {
+    if (currentSessionId && db) {
+      try {
+        await updateDoc(doc(db, 'user_sessions', currentSessionId), {
+          isActive: false,
+          logoutTime: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Failed to close session:', err);
+      }
+    }
+    logout();
+    router.push('/');
+  };
 
   if (!isLoaded || !auth.user) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -89,7 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SidebarFooter className="p-4 border-t space-y-4">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => { logout(); router.push('/'); }} className="w-full text-muted-foreground hover:text-destructive">
+              <SidebarMenuButton onClick={handleLogout} className="w-full text-muted-foreground hover:text-destructive">
                 <LogOut className="mr-3 w-5 h-5" />
                 <span>Sign Out</span>
               </SidebarMenuButton>

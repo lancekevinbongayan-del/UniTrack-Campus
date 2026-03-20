@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle2, Loader2, LogOut, ArrowRight, Library, Building2, GraduationCap, Briefcase, MapPin, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useFirestore } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 const DEPARTMENTS = [
   'College of Agriculture',
@@ -56,8 +59,9 @@ const CLASSIFICATIONS = [
 
 export default function VisitorCheckIn() {
   const router = useRouter();
-  const { auth, logout, addVisit, isLoaded } = useUniStore();
+  const { auth, logout, addVisit, isLoaded, currentSessionId } = useUniStore();
   const { toast } = useToast();
+  const db = useFirestore();
   
   const [selectedFacility, setSelectedFacility] = useState('library');
   const [department, setDepartment] = useState('');
@@ -102,7 +106,17 @@ export default function VisitorCheckIn() {
     toast({ title: "Check-in Successful", description: "Your visit has been recorded. Welcome to the campus!" });
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (currentSessionId && db) {
+      try {
+        await updateDoc(doc(db, 'user_sessions', currentSessionId), {
+          isActive: false,
+          logoutTime: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Failed to close session:', err);
+      }
+    }
     logout();
     router.push('/');
   };
