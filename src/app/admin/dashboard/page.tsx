@@ -12,14 +12,20 @@ import { Badge } from '@/components/ui/badge';
 const chartConfig = {
   value: {
     label: "Visits",
-    color: "hsl(var(--primary))",
+    theme: {
+      light: "hsl(var(--primary))",
+      dark: "hsl(var(--primary))",
+    },
   },
 } satisfies ChartConfig;
 
 const secondaryChartConfig = {
   value: {
     label: "Visits",
-    color: "hsl(var(--secondary))",
+    theme: {
+      light: "hsl(var(--secondary))",
+      dark: "hsl(var(--secondary))",
+    },
   },
 } satisfies ChartConfig;
 
@@ -80,16 +86,16 @@ export default function AdminDashboard() {
   const classifications = Array.from(new Set(visits.map(v => v.classification)));
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-primary">System Overview</h1>
-          <p className="text-muted-foreground">Real-time visitor statistics and institutional analytics.</p>
+          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">System Overview</h1>
+          <p className="text-muted-foreground text-lg">Real-time visitor statistics and institutional analytics.</p>
         </div>
         
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3 bg-card/40 p-2 rounded-xl border border-primary/10">
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className="w-[120px] bg-transparent border-none">
               <SelectValue placeholder="Period" />
             </SelectTrigger>
             <SelectContent>
@@ -101,7 +107,7 @@ export default function AdminDashboard() {
           </Select>
 
           <Select value={deptFilter} onValueChange={setDeptFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] bg-transparent border-none">
               <SelectValue placeholder="Department" />
             </SelectTrigger>
             <SelectContent>
@@ -111,7 +117,7 @@ export default function AdminDashboard() {
           </Select>
 
           <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[150px] bg-transparent border-none">
               <SelectValue placeholder="Classification" />
             </SelectTrigger>
             <SelectContent>
@@ -123,127 +129,80 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Visitors</p>
-                <h3 className="text-3xl font-bold mt-1">{totalVisitors}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'Total Visitors', value: totalVisitors, icon: Users, color: 'primary', sub: '12% from last ' + period.toLowerCase() },
+          { label: 'Unique Users', value: new Set(filteredVisits.map(v => v.userId)).size, icon: TrendingUp, color: 'secondary', sub: 'Verified institutional accounts' },
+          { label: 'Avg. Visits/Hr', value: totalVisitors > 0 ? (totalVisitors / (period === 'Day' ? 8 : period === 'Week' ? 40 : 160)).toFixed(1) : 0, icon: Clock, color: 'accent', sub: 'Standard operating hours' },
+          { label: 'Top Dept.', value: deptStats[0]?.name || 'N/A', icon: Building2, color: 'primary', sub: (deptStats[0]?.value || 0) + ' visits recorded', isSmall: true },
+        ].map((stat, i) => (
+          <Card key={i} className="group relative overflow-hidden bg-card/60 border-primary/10 hover:border-primary/30 transition-all duration-300">
+            <div className={`absolute top-0 left-0 w-1 h-full bg-${stat.color}`} />
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                  <h3 className={`font-bold mt-1 ${stat.isSmall ? 'text-xl' : 'text-3xl'} truncate max-w-[150px]`}>{stat.value}</h3>
+                </div>
+                <div className={`p-4 bg-${stat.color}/10 rounded-2xl group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon className={`w-6 h-6 text-${stat.color}`} />
+                </div>
               </div>
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Users className="w-6 h-6 text-primary" />
+              <div className="mt-4 flex items-center text-xs text-muted-foreground">
+                {stat.label === 'Total Visitors' && <ArrowUpRight className="w-3 h-3 mr-1 text-green-500" />}
+                <span className={stat.label === 'Total Visitors' ? 'text-green-500 font-medium' : ''}>{stat.sub}</span>
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-green-600">
-              <ArrowUpRight className="w-4 h-4 mr-1" />
-              <span>12% from last {period.toLowerCase()}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-secondary">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Unique Users</p>
-                <h3 className="text-3xl font-bold mt-1">{new Set(filteredVisits.map(v => v.userId)).size}</h3>
-              </div>
-              <div className="p-3 bg-secondary/10 rounded-full">
-                <TrendingUp className="w-6 h-6 text-secondary" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-muted-foreground">
-              <span>Verified institutional accounts</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-accent">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg. Visits/Hr</p>
-                <h3 className="text-3xl font-bold mt-1">
-                  {totalVisitors > 0 ? (totalVisitors / (period === 'Day' ? 8 : period === 'Week' ? 40 : 160)).toFixed(1) : 0}
-                </h3>
-              </div>
-              <div className="p-3 bg-accent/10 rounded-full">
-                <Clock className="w-6 h-6 text-accent" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-muted-foreground">
-              <span>Standard operating hours</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Top Dept.</p>
-                <h3 className="text-xl font-bold mt-1 truncate max-w-[120px]">
-                  {deptStats[0]?.name || 'N/A'}
-                </h3>
-              </div>
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Building2 className="w-6 h-6 text-primary" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-muted-foreground">
-              <span>{deptStats[0]?.value || 0} visits recorded</span>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Department Activity Chart */}
-        <Card>
+        <Card className="bg-card/60 border-primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Building2 className="mr-2 w-5 h-5 text-primary" />
-              Visits by Department
+            <CardTitle className="flex items-center text-xl">
+              <Building2 className="mr-3 w-6 h-6 text-primary" />
+              Department Traffic
             </CardTitle>
-            <CardDescription>Breakdown of visitor traffic across campus units.</CardDescription>
+            <CardDescription>Visual breakdown of visitor traffic across campus units.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[350px] pt-4">
             <ChartContainer config={chartConfig}>
               <BarChart data={deptStats.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--primary) / 0.1)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
                 <Tooltip 
-                  cursor={{ fill: 'transparent' }} 
+                  cursor={{ fill: 'hsl(var(--primary) / 0.05)' }} 
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[6, 6, 0, 0]} barSize={40} />
               </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
 
         {/* Reason for Visit Chart */}
-        <Card>
+        <Card className="bg-card/60 border-primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <HelpCircle className="mr-2 w-5 h-5 text-secondary" />
-              Reasons for Visit
+            <CardTitle className="flex items-center text-xl">
+              <HelpCircle className="mr-3 w-6 h-6 text-secondary" />
+              Purpose of Entry
             </CardTitle>
-            <CardDescription>Most common purposes for campus entry.</CardDescription>
+            <CardDescription>Most common intentions for campus visitors.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[350px] pt-4">
             <ChartContainer config={secondaryChartConfig}>
               <BarChart data={reasonStats.slice(0, 5)} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--secondary) / 0.1)" />
                 <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" width={100} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" width={110} axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 11}} />
                 <Tooltip 
-                  cursor={{ fill: 'transparent' }} 
+                  cursor={{ fill: 'hsl(var(--secondary) / 0.05)' }} 
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                <Bar dataKey="value" fill="var(--color-value)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[0, 6, 6, 0]} barSize={30} />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -251,34 +210,37 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Activity Mini-Log */}
-      <Card>
+      <Card className="bg-card/60 border-primary/10">
         <CardHeader>
-          <CardTitle>Recent Visitor Stream</CardTitle>
-          <CardDescription>Live feed of latest visitor activity.</CardDescription>
+          <CardTitle className="text-xl">Live Activity Stream</CardTitle>
+          <CardDescription>Continuous feed of institutional visitor check-ins.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredVisits.slice(0, 5).map((visit) => (
-              <div key={visit.id} className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-muted/30 transition-colors">
+              <div key={visit.id} className="flex items-center justify-between p-4 border border-primary/5 rounded-2xl bg-card/40 hover:bg-primary/5 transition-all duration-200">
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                  <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/20 flex items-center justify-center font-bold text-primary text-lg shadow-sm">
                     {visit.userName.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-medium text-sm">{visit.userName}</p>
-                    <p className="text-xs text-muted-foreground">{visit.userEmail}</p>
+                    <p className="font-bold text-foreground">{visit.userName}</p>
+                    <p className="text-xs text-muted-foreground flex items-center">
+                      <Users className="w-3 h-3 mr-1" /> {visit.userEmail}
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant="outline" className="mb-1">{visit.department}</Badge>
-                  <p className="text-xs text-muted-foreground">
+                <div className="text-right flex flex-col items-end gap-1">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">{visit.department}</Badge>
+                  <p className="text-xs text-muted-foreground font-mono">
                     {new Date(visit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
             ))}
             {filteredVisits.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-12 text-muted-foreground bg-primary/5 rounded-2xl border border-dashed border-primary/20">
+                <Users className="w-8 h-8 mx-auto mb-3 opacity-20" />
                 No activity found for the selected filters.
               </div>
             )}

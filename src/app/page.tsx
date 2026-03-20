@@ -3,56 +3,63 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, ShieldCheck, UserCheck } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { LogIn, ShieldCheck, UserCheck, Sparkles } from 'lucide-react';
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-campus');
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">
-              UniTrack <span className="text-secondary">Campus Visitor</span>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background overflow-hidden relative">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary/10 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="space-y-8 z-10 text-center lg:text-left">
+          <div className="space-y-4">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3 h-3" />
+              <span>Secure Institutional Access</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-headline font-bold text-foreground tracking-tight leading-tight">
+              UniTrack <span className="text-primary">Campus</span> <br />
+              <span className="text-secondary">Visitor Portal</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Welcome to the institutional campus visitor management system. Securely check-in and explore our campus facilities.
+            <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
+              Welcome to the next generation of campus visitor management. Seamless check-ins, real-time analytics, and secure verification.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            <Card className="check-in-card hover:border-secondary transition-all cursor-pointer">
-              <Link href="/login" className="block p-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto lg:mx-0">
+            <Card className="check-in-card bg-card/50 backdrop-blur-sm border-primary/20">
+              <Link href="/login" className="block p-2 h-full">
                 <CardHeader className="pb-2">
-                  <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center mb-2">
-                    <UserCheck className="text-secondary w-5 h-5" />
+                  <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center mb-4 border border-secondary/30">
+                    <UserCheck className="text-secondary w-6 h-6" />
                   </div>
-                  <CardTitle className="text-xl">Visitor Access</CardTitle>
-                  <CardDescription>Check-in for your campus visit</CardDescription>
+                  <CardTitle className="text-2xl font-bold">Visitor</CardTitle>
+                  <CardDescription className="text-muted-foreground/80">Check-in for your visit</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button className="w-full bg-secondary hover:bg-secondary/90 text-white">
-                    Institutional Login <LogIn className="ml-2 w-4 h-4" />
+                <CardContent className="mt-4">
+                  <Button className="w-full bg-secondary hover:bg-secondary/90 text-white shadow-lg shadow-secondary/20">
+                    Sign In <LogIn className="ml-2 w-4 h-4" />
                   </Button>
                 </CardContent>
               </Link>
             </Card>
 
-            <Card className="check-in-card hover:border-primary transition-all cursor-pointer">
-              <Link href="/login?admin=true" className="block p-2">
+            <Card className="check-in-card bg-card/50 backdrop-blur-sm border-primary/20">
+              <Link href="/login?admin=true" className="block p-2 h-full">
                 <CardHeader className="pb-2">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                    <ShieldCheck className="text-primary w-5 h-5" />
+                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4 border border-primary/30">
+                    <ShieldCheck className="text-primary w-6 h-6" />
                   </div>
-                  <CardTitle className="text-xl">Administrator Portal</CardTitle>
-                  <CardDescription>Manage visits and view analytics</CardDescription>
+                  <CardTitle className="text-2xl font-bold">Admin</CardTitle>
+                  <CardDescription className="text-muted-foreground/80">Manage institutional data</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/5">
-                    Admin Login
+                <CardContent className="mt-4">
+                  <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10">
+                    Admin Portal
                   </Button>
                 </CardContent>
               </Link>
@@ -60,22 +67,51 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative hidden md:block">
-          <div className="absolute -inset-4 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-            <Image
-              src={heroImage?.imageUrl || "https://picsum.photos/seed/campus/600/800"}
-              alt="Campus"
-              width={600}
-              height={800}
-              className="object-cover w-full h-[500px]"
-              data-ai-hint="university building"
+        {/* Splash Art Replacement */}
+        <div className="relative hidden lg:flex items-center justify-center min-h-[500px] splash-art-container">
+          <svg
+            viewBox="0 0 500 500"
+            className="w-full max-w-md h-auto drop-shadow-2xl"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="250" cy="250" r="180" stroke="url(#paint0_linear)" strokeWidth="2" strokeDasharray="10 10" />
+            <circle cx="250" cy="250" r="140" stroke="url(#paint1_linear)" strokeWidth="4" />
+            <path
+              d="M250 50V110M250 390V450M50 250H110M390 250H450"
+              stroke="hsl(var(--primary))"
+              strokeWidth="4"
+              strokeLinecap="round"
             />
-          </div>
+            <g className="animate-pulse">
+              <rect x="235" y="235" width="30" height="30" rx="4" fill="hsl(var(--primary))" />
+              <rect x="230" y="230" width="40" height="40" rx="6" stroke="hsl(var(--primary))" strokeOpacity="0.3" />
+            </g>
+            <path
+              d="M150 150L210 210M290 290L350 350M350 150L290 210M210 290L150 350"
+              stroke="hsl(var(--secondary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <defs>
+              <linearGradient id="paint0_linear" x1="250" y1="70" x2="250" y2="430" gradientUnits="userSpaceOnUse">
+                <stop stopColor="hsl(var(--primary))" />
+                <stop offset="1" stopColor="hsl(var(--secondary))" />
+              </linearGradient>
+              <linearGradient id="paint1_linear" x1="250" y1="110" x2="250" y2="390" gradientUnits="userSpaceOnUse">
+                <stop stopColor="hsl(var(--secondary))" />
+                <stop offset="1" stopColor="hsl(var(--primary))" />
+              </linearGradient>
+            </defs>
+          </svg>
+          
+          {/* Floating Accents */}
+          <div className="absolute top-[15%] right-[10%] w-16 h-16 bg-primary/20 rounded-full blur-xl animate-bounce duration-[3000ms]" />
+          <div className="absolute bottom-[20%] left-[5%] w-12 h-12 bg-secondary/20 rounded-full blur-xl animate-bounce duration-[4000ms]" />
         </div>
       </div>
 
-      <footer className="mt-16 text-muted-foreground text-sm font-medium">
+      <footer className="mt-16 text-muted-foreground/60 text-sm font-medium">
         © {new Date().getFullYear()} UniTrack Campus Visitor System. All institutional rights reserved.
       </footer>
     </div>

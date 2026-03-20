@@ -4,53 +4,42 @@
 
 @layer base {
   :root {
-    --background: 204 13% 95%;
-    --foreground: 220 40% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 40% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 10%;
-    --primary: 220 60% 35%;
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 187 70% 50%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 210 20% 90%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 187 70% 50%;
-    --accent-foreground: 220 40% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 220 60% 35%;
-    --radius: 0.75rem;
-    --chart-1: 220 60% 35%;
-    --chart-2: 187 70% 50%;
-    --chart-3: 199 89% 48%;
-    --chart-4: 251 91% 74%;
-    --chart-5: 187 100% 42%;
-  }
-
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 11%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11.2%;
-    --secondary: 217 32% 17%;
+    --secondary: 199 89% 48%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 32% 17%;
+    --accent: 217 32% 20%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62% 30%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 212 26% 83%;
+    --border: 217 32% 15%;
+    --input: 217 32% 15%;
+    --ring: 224 76% 48%;
+    --radius: 1rem;
+
+    /* Sidebar specific */
+    --sidebar-background: 222 47% 3%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 32% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 32% 15%;
+    --sidebar-ring: 224 76% 48%;
+
+    --chart-1: 217 91% 60%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 187 100% 42%;
+    --chart-4: 251 91% 74%;
+    --chart-5: 220 60% 35%;
   }
 }
 
@@ -64,9 +53,13 @@
 }
 
 .check-in-card {
-  transition: transform 0.2s ease-in-out;
+  @apply transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-primary/20;
 }
 
 .check-in-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+}
+
+.splash-art-container {
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.15) 0%, transparent 70%);
 }
