@@ -1,11 +1,10 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
 import { useUniStore } from '@/lib/store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Clock, Building2, HelpCircle, ArrowUpRight, TrendingUp, Monitor, Smartphone, Activity } from 'lucide-react';
+import { Users, Clock, Building2, HelpCircle, ArrowUpRight, TrendingUp, Monitor, Smartphone, Activity, Loader2 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Badge } from '@/components/ui/badge';
@@ -143,7 +142,7 @@ export default function AdminDashboard() {
                 No active users detected.
               </div>
             ) : (
-              activeSessions?.map((session) => (
+              activeSessions?.map((session: any) => (
                 <div key={session.id} className="flex items-center justify-between p-3 border border-primary/5 rounded-xl bg-card/40 hover:bg-primary/5 transition-all">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary text-sm">
@@ -194,8 +193,8 @@ export default function AdminDashboard() {
         {[
           { label: 'Total Visitors', value: filteredVisits.length, icon: Users, color: 'primary', sub: 'Calculated Period: ' + period },
           { label: 'Active Sessions', value: activeSessions?.length || 0, icon: Activity, color: 'green-500', sub: 'Live Connections' },
-          { label: 'Mobile Users', value: activeSessions?.filter(s => s.deviceId === 'Mobile Device').length || 0, icon: Smartphone, color: 'secondary', sub: 'Handheld access' },
-          { label: 'Desktop Users', value: activeSessions?.filter(s => s.deviceId === 'Desktop/Web').length || 0, icon: Monitor, color: 'accent', sub: 'Stationary access' },
+          { label: 'Mobile Users', value: activeSessions?.filter((s: any) => s.deviceId === 'Mobile Device').length || 0, icon: Smartphone, color: 'secondary', sub: 'Handheld access' },
+          { label: 'Desktop Users', value: activeSessions?.filter((s: any) => s.deviceId === 'Desktop/Web').length || 0, icon: Monitor, color: 'accent', sub: 'Stationary access' },
         ].map((stat, i) => (
           <Card key={i} className="group relative overflow-hidden bg-card/60 border-primary/10 hover:border-primary/30 transition-all duration-300">
             <CardContent className="pt-6">
