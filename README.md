@@ -2,7 +2,7 @@
 
 ## 🌐 Live Demo
 Access the official institutional visitor portal and administrative command center:
-**[Launch UniTrack System](https://studio-1292497662-88e10.web.app/)** 
+**[Launch UniTrack System](https://studio-1292497662-88e10.web.app)** 
 
 ---
 
