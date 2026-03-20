@@ -74,7 +74,7 @@ function LoginForm() {
         <CardContent className="p-0 space-y-8">
           <div className="flex flex-col items-center text-center space-y-4">
             {logo && (
-              <div className="relative w-16 h-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg">
+              <div className="relative w-16 h-16 overflow-hidden bg-transparent">
                 <Image 
                   src={logo.imageUrl} 
                   alt="New Era University Logo" 

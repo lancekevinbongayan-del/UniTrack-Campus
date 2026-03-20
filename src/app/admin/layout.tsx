@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Sidebar variant="sidebar" className="border-r border-primary/10">
         <SidebarHeader className="p-4 border-b">
           <div className="flex items-center space-x-3">
-            <div className="relative w-10 h-10 overflow-hidden rounded-lg bg-white p-1">
+            <div className="relative w-10 h-10 overflow-hidden bg-transparent">
               {logo && (
                 <Image 
                   src={logo.imageUrl} 

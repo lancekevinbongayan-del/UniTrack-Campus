@@ -28,7 +28,7 @@ export default function Home() {
             
             <div className="flex flex-col items-center lg:items-start space-y-4">
               {logo && (
-                <div className="relative w-24 h-24 mb-2 bg-white p-2 rounded-2xl shadow-xl">
+                <div className="relative w-24 h-24 mb-2 bg-transparent p-0 rounded-2xl">
                   <Image 
                     src={logo.imageUrl} 
                     alt="New Era University Logo" 
